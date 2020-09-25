@@ -1,6 +1,7 @@
 const db = require('../data/dbConfig');
 const {v4: uuidv4} = require('uuid');
 const moment = require('moment')
+const dayModel = require('../models/day_log')
 
 /******************************************************************************
  *                      Get all week logs by user id
@@ -15,9 +16,10 @@ const getAllByUserId = async (userId) => {
  ******************************************************************************/
 
 const getUsersLogByDate = async (id, date) => {
+  console.log(`${moment(date).week() - 1}/2020`)
   return db("week_log")
     .where('users_id', id)
-    .where('week_of_year', `${moment(date).week()}/2020`)
+    .where('week_of_year', `${moment(date).week() - 1}/2020`)
     .select('id',
       'week_of_year',
       'average_hours_slept',
@@ -51,8 +53,6 @@ const create = async (userId) => {
   const duplicate = await checkIfWeekExists(userId, week_of_year);
   let weekLogId
   if (duplicate.length === 0) {
-    // if week log does not exist only create a new on on sundays
-    if (moment().day() === 0) {
       [weekLogId] = await db('week_log').insert({
         id: uuidv4(),
         users_id: userId,
@@ -60,9 +60,7 @@ const create = async (userId) => {
         average_hours_slept: 0,
         average_quality: 0,
       },).returning('id')
-      console.log(weekLogId)
     }
-  }
   return weekLogId;
 }
 
@@ -110,8 +108,25 @@ const update = async (userId, dayData) => {
  ******************************************************************************/
 
 const getDaysForWeek = async (id, date) => {
-  const weekId = await getUsersLogByDate(id, date)
-  console.log(weekId)
+  const [week] = await getUsersLogByDate(id, date)
+  console.log(week.id)
+  const days = await db('day_log as d')
+    .where('week_log_id', week.id)
+    .join('quality_log as q', 'q.day_log_id', 'd.id')
+    .select(
+      'd.id',
+      'd.date',
+      'd.bedtime',
+      'd.wake_time',
+      'd.total_hours_slept',
+      'd.average_quality',
+      'q.wake_score',
+      'q.day_score',
+      'q.bedtime_score',
+      'd.completed')
+    .orderBy('d.date')
+  console.log(days)
+
 }
 
 /******************************************************************************

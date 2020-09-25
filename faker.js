@@ -143,11 +143,11 @@ const floodAdminsData = () => {
 }
 // floodUsers()
 // createAdmin()
-floodAdminsData()
+// floodAdminsData()
 
 // get week number by date
 // console.log(moment('1-25-1995').month() + 1 )
-
+console.log(moment().format('YYYY-MM-DD') === moment().endOf('month').format('YYYY-MM-DD'))
 // console.log(moment().date())
 // console.log(moment('8-30-2020').week())
 

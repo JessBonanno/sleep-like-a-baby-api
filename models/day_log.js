@@ -95,6 +95,7 @@ const create = async (userId, bedtime) => {
   // first check to see if there is an active sleep log
   const duplicate = await checkDuplicateDay(userId)
   let logId
+  let logData
   if (duplicate.length === 0) {
     // creating a basic sleep log when user creates a new bedtime
     logData = {
@@ -110,7 +111,12 @@ const create = async (userId, bedtime) => {
     const monthLogId = await monthModel.create(userId);
     const weekLogId = await weekModel.create(userId);
     // create the day log
-    [logId] = await db('day_log').insert(logData).returning('id')
+    [logId] = await db('day_log').insert({
+      ...logData,
+      week_log_id: weekLogId,
+      month_log_id: monthLogId,
+    }).returning('id')
+    console.log(logId)
     const qualityLogId = await qualityModel.create(logId);
   } else {
     logId = duplicate[0].id
@@ -137,13 +143,15 @@ const getAverageQualityForOneDay = (wakeScore, dayScore, bedScore) => {
 
 const update = async (userId, id, sleepData) => {
   // first check if log is complete already
-  let isDone = await db('day_log').where({id}).select('completed')
+  let [isDone] = await db('day_log').where({id}).select('completed')
   // TODO decide what to do if trying to update a completed log
   // right now only updating if incomplete but returning the same data
   // either way
+  console.log(isDone.completed)
   let updatedWeek
   let updatedMonth
-  if (!isDone) {
+  if (!isDone.completed) {
+    console.log('test')
     let logUpdate = {
       wake_time: sleepData.wake_time,
       bed_time: sleepData.bedtime || undefined,
@@ -184,111 +192,82 @@ const update = async (userId, id, sleepData) => {
         average_quality: averageQualityScore,
       }
       await db('day_log').where({id}).update(logUpdate)
-      // update the corresponding week log if there is one
-      const week_of_year = `${moment().week()}/${moment().year()}`
-      let weekExists = await weekModel.checkIfWeekExists(userId, week_of_year)
-      if (weekExists.length > 0) {
-        let dayData = {
-          sleptHours: sleptHours,
-          avgQuality: averageQualityScore
+      // update the corresponding week log if there is one if its saturday
+      if (moment().day() === 6) {
+        const week_of_year = `${moment().week()}/${moment().year()}`
+        let weekExists = await weekModel.checkIfWeekExists(userId, week_of_year)
+        if (weekExists.length > 0) {
+          let dayData = {
+            sleptHours: sleptHours,
+            avgQuality: averageQualityScore
+          }
+          updatedWeek = weekModel.update(userId, dayData)
         }
-        updatedWeek = weekModel.update(userId, dayData)
       }
-      // update the corresponding month log if there is one
-      const month_of_year = `${moment().month() + 1}/${moment().year()}`
-      let monthExists = await monthModel.checkIfMonthExists(userId, month_of_year)
-      if (monthExists.length > 0) {
-        let dayData = {
-          sleptHours: sleptHours,
-          avgQuality: averageQualityScore
+      // update the corresponding month log if there is one if its the last
+      // day of the month
+      if (moment().format('YYYY-MM-DD') === moment().endOf('month').format('YYYY-MM-DD')) {
+        const month_of_year = `${moment().month() + 1}/${moment().year()}`
+        let monthExists = await monthModel.checkIfMonthExists(userId, month_of_year)
+        if (monthExists.length > 0) {
+          let dayData = {
+            sleptHours: sleptHours,
+            avgQuality: averageQualityScore
+          }
+          updatedMonth = monthModel.update(userId, dayData)
         }
-        updatedMonth = monthModel.update(userId, dayData)
       }
     }
     // return all the data from sleep log and quality log and week / month logs if
     // applicable
   }
-  let completed
-  if (updatedWeek && updatedMonth) {
-    [completeLog] = await db('day_log as d')
-      .where('d.id', id)
-      .join('quality_log as q', 'q.day_log_id', 'd.id')
-      .join('week_log as w', 'w.users_id', 'd.users_id')
-      .where('w.week_of_year', `${moment().week()}/${moment().year()}`)
-      .join('month_log as m', 'm.users_id', 'd.users_id')
-      .where('m.month_of_year', `${moment().month() + 1}/${moment().year()}`,)
-      .select(
-        'd.id',
-        'd.date',
-        'd.bedtime',
-        'd.wake_time',
-        'd.total_hours_slept',
-        'd.average_quality',
-        'q.wake_score',
-        'q.day_score',
-        'q.bedtime_score',
-        'w.average_hours_slept as weekly_average_hours_slept',
-        'w.average_quality as weekly_average_quality',
-        'm.average_hours_slept as monthly_average_hours_slept',
-        'm.average_quality as monthly_average_quality',
-        'd.completed')
-  } else if (updatedWeek && !updatedMonth) {
-    [completeLog] = await db('day_log as d')
-      .where('d.id', id)
-      .join('quality_log as q', 'q.day_log_id', 'd.id')
-      .join('week_log as w', 'w.users_id', 'd.users_id')
-      .where('w.week_of_year', `${moment().week()}/${moment().year()}`)
-      .select(
-        'd.id',
-        'd.date',
-        'd.bedtime',
-        'd.wake_time',
-        'd.total_hours_slept',
-        'd.average_quality',
-        'q.wake_score',
-        'q.day_score',
-        'q.bedtime_score',
-        'w.average_hours_slept as weekly_average_hours_slept',
-        'w.average_quality as weekly_average_quality',
-        'd.completed')
-  } else if (updatedMonth && !updatedWeek) {
-    [completeLog] = await db('day_log as d')
-      .where('d.id', id)
-      .join('quality_log as q', 'q.day_log_id', 'd.id')
-      .join('month_log as m', 'm.users_id', 'd.users_id')
-      .where('m.month_of_year', `${moment().month() + 1}/${moment().year()}`,)
-      .select(
-        'd.id',
-        'd.date',
-        'd.bedtime',
-        'd.wake_time',
-        'd.total_hours_slept',
-        'd.average_quality',
-        'q.wake_score',
-        'q.day_score',
-        'q.bedtime_score',
-        'm.average_hours_slept as monthly_average_hours_slept',
-        'm.average_quality as monthly_average_quality',
-        'd.completed')
-  } else {
-    [completeLog] = await db('day_log as d')
-      .where('d.id', id)
-      .join('quality_log as q', 'q.day_log_id', 'd.id')
-      .select(
-        'd.id',
-        'd.date',
-        'd.bedtime',
-        'd.wake_time',
-        'd.total_hours_slept',
-        'd.average_quality',
-        'q.wake_score',
-        'q.day_score',
-        'q.bedtime_score',
-        'd.completed')
-  }
+  let completedLog
+  [completeLog] = await db('day_log as d')
+    .where('d.id', id)
+    .join('quality_log as q', 'q.day_log_id', 'd.id')
+    .join('week_log as w', 'w.users_id', 'd.users_id')
+    .where('w.week_of_year', `${moment().week()}/${moment().year()}`)
+    .join('month_log as m', 'm.users_id', 'd.users_id')
+    .where('m.month_of_year', `${moment().month() + 1}/${moment().year()}`,)
+    .select(
+      'd.id',
+      'd.date',
+      'd.bedtime',
+      'd.wake_time',
+      'd.total_hours_slept',
+      'd.average_quality',
+      'q.wake_score',
+      'q.day_score',
+      'q.bedtime_score',
+      'w.average_hours_slept as weekly_average_hours_slept',
+      'w.average_quality as weekly_average_quality',
+      'm.average_hours_slept as monthly_average_hours_slept',
+      'm.average_quality as monthly_average_quality',
+      'd.completed')
   return completeLog
+}
 
 
+/******************************************************************************
+ *                      Get a day log by week id
+ ******************************************************************************/
+
+const getByWeekId = async (id) => {
+  console.log('test')
+  return db('day_log as d')
+    .where('week_log_id', id)
+    .join('quality_log as q', 'q.day_log_id', 'd.id')
+    .select(
+      'd.id',
+      'd.date',
+      'd.bedtime',
+      'd.wake_time',
+      'd.total_hours_slept',
+      'd.average_quality',
+      'q.wake_score',
+      'q.day_score',
+      'q.bedtime_score',
+      'd.completed')
 }
 
 
@@ -297,11 +276,13 @@ const update = async (userId, id, sleepData) => {
  ******************************************************************************/
 
 module.exports = {
+  getByWeekId,
   getById,
   create,
   update,
   getAllByUserId,
   getByDate,
   remove,
-  checkDuplicateDay
+  checkDuplicateDay,
+
 }

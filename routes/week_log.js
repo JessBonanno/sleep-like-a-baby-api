@@ -1,15 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const moment = require('moment')
-const sleepModel = require('../models/day_log');
-const qualityModel = require('../models/quality_log');
 const weekModel = require('../models/week_log');
-const monthModel = require('../models/month_log');
-const usersModel = require('../models/users');
-const validateToken = require('../auth/validateToken');
-const validateUserId = require('../middleware/validateUserId');
-const validateAdmin = require('../auth/validateAdmin');
-const validateBody = require('../middleware/validateUserUpdateBody');
 
 /******************************************************************************
  *                      Get all current users week logs - "GET
@@ -50,6 +41,7 @@ router.get('/current-user/search', async (req, res, next) => {
 
 router.get('/days', async (req, res, next) => {
     const date = req.query.date
+  console.log(date)
   try {
       const days = await weekModel.getDaysForWeek(req.id, date)
   } catch (err) {

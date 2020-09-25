@@ -47,24 +47,21 @@ const getBy = async (filter) => {
  ******************************************************************************/
 
 const create = async (userId) => {
-  const month_of_year = `${moment().month()}/${moment().year()}`
+  const month_of_year = `${moment().month() + 1}/${moment().year()}`
   //create new month data table
   // check to see if month_of_year already exists for userId first
   const duplicate = await checkIfMonthExists(userId, month_of_year);
   let monthLogId
   if (duplicate.length === 0) {
-    // if month log does not exist only create a new on on first day of month
-    if (moment().date() === 1) {
       [monthLogId] = await db('month_log').insert({
         id: uuidv4(),
         users_id: userId,
-        month_of_year: `${moment().month()}/${moment().year()}`,
+        month_of_year: `${moment().month() + 1}/${moment().year()}`,
         average_hours_slept: 0,
         average_quality: 0,
       },).returning('id')
       console.log(monthLogId)
     }
-  }
   return monthLogId;
 }
 
