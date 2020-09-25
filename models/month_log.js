@@ -16,6 +16,9 @@ const getAllByUserId = async (userId) => {
  ******************************************************************************/
 
 const getUsersLogByDate = async (id, month, year) => {
+
+  console.log({month})
+  console.log({year})
   return db("month_log")
     .where('users_id', id)
     .where('month_of_year', `${month}/${year}` )
@@ -105,6 +108,31 @@ const update = async (userId, dayData) => {
 }
 
 /******************************************************************************
+ *                      Get all days of a month by date
+ ******************************************************************************/
+
+const getDaysForMonth = async (id, month, year) => {
+  const [result] = await getUsersLogByDate(id, month, year)
+  console.log(result)
+  const days = await db('day_log as d')
+    .where('month_log_id', result.id)
+    .join('quality_log as q', 'q.day_log_id', 'd.id')
+    .select(
+      'd.id',
+      'd.date',
+      'd.bedtime',
+      'd.wake_time',
+      'd.total_hours_slept',
+      'd.average_quality',
+      'q.wake_score',
+      'q.day_score',
+      'q.bedtime_score',
+      'd.completed')
+    .orderBy('d.date')
+return days
+}
+
+/******************************************************************************
  *                      Export methods
  ******************************************************************************/
 
@@ -115,4 +143,5 @@ module.exports = {
   update,
   getAllByUserId,
   getUsersLogByDate,
+  getDaysForMonth,
 }

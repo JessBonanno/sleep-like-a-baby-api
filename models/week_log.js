@@ -125,8 +125,7 @@ const getDaysForWeek = async (id, date) => {
       'q.bedtime_score',
       'd.completed')
     .orderBy('d.date')
-  console.log(days)
-
+return days
 }
 
 /******************************************************************************

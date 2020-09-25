@@ -41,14 +41,17 @@ router.get('/current-user/search', async (req, res, next) => {
 
 router.get('/days', async (req, res, next) => {
     const date = req.query.date
-  console.log(date)
   try {
       const days = await weekModel.getDaysForWeek(req.id, date)
+    res.status(200).json(days)
   } catch (err) {
     console.log(err.stack);
     next(err);
   }
 })
+
+
+
 
 /******************************************************************************
  *                                 Export Router
