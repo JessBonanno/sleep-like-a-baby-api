@@ -296,12 +296,6 @@
 
 * Requires user to be logged in
 * Returns an object containing total sleep quality for all months  
-{  
-"qualityTotal":<Total of all reported quality for all months>,  
-"totalMonths":<Total months user has records for>,  
-"averageQuality":<Average Quality of sleep for all months>  
-}  
-
 
 ```js
 [
