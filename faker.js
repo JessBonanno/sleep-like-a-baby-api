@@ -32,8 +32,8 @@ const longMonths = [1, 3, 5, 7, 8, 10, 12]
 const shortMonths = [4, 6, 9, 11]
 let monthId
 let weekId
-let week
 const floodDays = async (id) => {
+let week = 27
   //flood my days
   month = 7
   day = 0
@@ -109,6 +109,7 @@ const floodDays = async (id) => {
     dayOfWeek++
   } else {
     dayOfWeek = 0;
+    week++
     weekId = faker.random.uuid()
   }
     // console.log({monthId})

@@ -106,6 +106,15 @@ const update = async (userId, dayData) => {
 }
 
 /******************************************************************************
+ *                      Get all days of a week by date
+ ******************************************************************************/
+
+const getDaysForWeek = async (id, date) => {
+  const weekId = await getUsersLogByDate(id, date)
+  console.log(weekId)
+}
+
+/******************************************************************************
  *                      Export methods
  ******************************************************************************/
 
@@ -116,4 +125,5 @@ module.exports = {
   update,
   getAllByUserId,
   getUsersLogByDate,
+  getDaysForWeek,
 }

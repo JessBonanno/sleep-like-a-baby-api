@@ -43,6 +43,22 @@ router.get('/current-user/search', async (req, res, next) => {
 })
 
 /******************************************************************************
+ *                      Get all days of a week by date for current user-
+ *                      "GET
+ *                      /week/days/?date={'1-25-2000'}"
+ ******************************************************************************/
+
+router.get('/days', async (req, res, next) => {
+    const date = req.query.date
+  try {
+      const days = await weekModel.getDaysForWeek(req.id, date)
+  } catch (err) {
+    console.log(err.stack);
+    next(err);
+  }
+})
+
+/******************************************************************************
  *                                 Export Router
  ******************************************************************************/
 
