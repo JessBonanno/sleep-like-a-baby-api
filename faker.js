@@ -12,7 +12,6 @@ let day = 0
 
 
 const createAdmin = async () => {
-
   const admins = [
     {
       admin: true,
@@ -130,32 +129,23 @@ const floodWeeks = async (id) => {
     }, 1000);
   }
 }
-const floodAdminsData = () => {
-  adminIds.map(id => {
+const floodAdminData = (id) => {
 floodDays(id)
 floodWeeks(id)
 floodMonths(id)
-  })
+
 }
-const adminIds = ['1dd68a45-de2c-49f9-8b32-c7ca3f08792b',
-'f8768319-2572-4915-958d-10c4f0460cee',
-'e78e2128-f21e-414e-bf7c-1547480db0c1',
-'af0f2387-c97b-4778-a399-b088450790a3',
-'fc79387d-5ff0-4f3f-b0e9-49bcac97e806',
-'655b3e68-2d9b-4041-a197-705b393baec1',
-]
-// floodUsers()
-// createAdmins()
-// floodAdminsData()
+const adminId = '10446572-4554-49e3-82f2-6c27e71b4d28'
+// createAdmin()
+floodAdminData(adminId)
+
+
 
 // get week number by date
 // console.log(moment('1-25-1995').month() + 1 )
-
 // console.log(moment().date())
 // console.log(moment('8-30-2020').week())
-
-console.log(moment().date())
+// console.log(moment().date())
 // const bedtime = new Date(`2020-09-18T23:00:00`).getTime()
 // const formattedBedTime = moment(time).format('hh:mm:A')
-//
 // console.log(formattedTime)
