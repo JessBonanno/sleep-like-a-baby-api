@@ -6,16 +6,20 @@ const db = require('./data/dbConfig');
 
 
 
+
 let month = 1
 let day = 0
 
+
 const createAdmin = async () => {
+
   const admins = [
     {
       admin: true,
       email: 'jess@email.com',
       username: 'Jess',
       password: 'unit4',
+
     }
   ]
   admins.map(admin => {

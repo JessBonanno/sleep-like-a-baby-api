@@ -290,6 +290,7 @@
 ]
 ```
 
+
 ### month/current-user/average
 #### GET
 
@@ -312,6 +313,7 @@
 ]
 ```
 
+
 ### /month/current-user/search/?date={date}
 #### GET
 * Requires user to be logged in
@@ -329,3 +331,6 @@
     }
 ]
 ```
+
+# sleep-like-a-baby-api
+
