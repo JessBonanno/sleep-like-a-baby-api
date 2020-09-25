@@ -53,8 +53,21 @@ exports.up = function (knex) {
         .inTable("users")
         .onDelete('CASCADE')
         .onUpdate('CASCADE');
+      tbl.uuid("week_log_id")
+        .unsigned()
+        .notNullable()
+        .references('id')
+        .inTable("week_log")
+        .onDelete('CASCADE')
+        .onUpdate('CASCADE');
+      tbl.uuid("month_log_id")
+        .unsigned()
+        .notNullable()
+        .references('id')
+        .inTable("month_log")
+        .onDelete('CASCADE')
+        .onUpdate('CASCADE');
     })
-
     .createTable("quality_log", tbl => {
       tbl.uuid("id").notNullable().unique().primary();
       tbl.integer("wake_score").notNullable();
