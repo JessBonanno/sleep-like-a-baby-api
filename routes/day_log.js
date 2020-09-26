@@ -21,9 +21,8 @@ const validateSleepLogId = require('../middleware/validateSleepLogId')
  ******************************************************************************/
 
 router.post('/current-user', validateCreateLogBody(), async (req, res, next) => {
-  const {bedtime} = req.body;
   try {
-    const dayLogId = await dayModel.create(req.id, bedtime)
+    const dayLogId = await dayModel.create(req.id, req.body)
     const [log] = await dayModel.getById(dayLogId)
     res.status(201).json(log)
   } catch (err) {

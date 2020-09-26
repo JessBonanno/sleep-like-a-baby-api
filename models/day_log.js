@@ -9,9 +9,9 @@ const moment = require('moment')
  *                      Check if a day log is already created
  ******************************************************************************/
 
-const checkDuplicateDay = async (userId, month_of_year) => {
+const checkDuplicateDay = async (userId, date) => {
   // console.log({month_of_year})
-  return db('day_log').where('users_id', userId).where('date', new Date());
+  return db('day_log').where('users_id', userId).where('date', date ? date : new Date());
 }
 
 
@@ -91,18 +91,18 @@ const remove = async (id) => {
  *                      Create a new day log
  ******************************************************************************/
 
-const create = async (userId, bedtime) => {
+const create = async (userId, data) => {
   // first check to see if there is an active sleep log
-  const duplicate = await checkDuplicateDay(userId)
+  const duplicate = await checkDuplicateDay(userId, data.date)
   let logId
   let logData
   if (duplicate.length === 0) {
     // creating a basic sleep log when user creates a new bedtime
     logData = {
-      id: uuidv4(),
-      users_id: userId,
-      date: new Date(),
-      bedtime: bedtime,
+      id: data.id || uuidv4(),
+      users_id: data.users_id ||  userId,
+      date: data.date || new Date(),
+      bedtime: data.bedtime,
       wake_time: null,
       total_hours_slept: null,
       average_quality: null,
@@ -142,12 +142,15 @@ const getAverageQualityForOneDay = (wakeScore, dayScore, bedScore) => {
  ******************************************************************************/
 
 const update = async (userId, id, sleepData) => {
+  console.log({userId})
+  console.log({id})
+  console.log({sleepData})
   // first check if log is complete already
   let [isDone] = await db('day_log').where({id}).select('completed')
+  console.log({isDone})
   // TODO decide what to do if trying to update a completed log
   // right now only updating if incomplete but returning the same data
   // either way
-  console.log(isDone.completed)
   let updatedWeek
   let updatedMonth
   if (!isDone.completed) {

@@ -3,6 +3,7 @@ const moment = require('moment');
 const bcrypt = require('bcryptjs');
 const {v4: uuidv4} = require('uuid');
 const db = require('./data/dbConfig');
+const dayModel = require('./models/day_log')
 
 
 let month = 1
@@ -138,12 +139,10 @@ let week = 27
 const adminId = 'cc785035-9ddc-4823-adbb-e0e6ad7932ca'
 const floodAdminsData = () => {
   floodDays(adminId)
-  // floodWeeks(adminId)
-  // floodMonths(adminId)
 }
 // floodUsers()
 // createAdmin()
-floodAdminsData()
+// floodAdminsData()
 
 // get week number by date
 // console.log(moment('1-25-1995').month() + 1 )
@@ -157,3 +156,24 @@ floodAdminsData()
 // console.log(formattedTime)
 // console.log(moment().format('MM-DD-YYYY'))
 // console.log(moment('2020-09-25T00:00:00.000Z').day().format('d'))
+// const fakeADay = async (id) => {
+//     const sleepId = faker.random.uuid()
+//
+//     const sleepData = {
+//       id: sleepId,
+//       users_id: id,
+//       date: `2020-${9}-${20}`,
+//       bedtime: `23:45:00`,
+//     }
+//     const qualityData = {
+//       wake_time: `06:45:00`,
+//       wake_score: 2,
+//       day_score: 3,
+//       bedtime_score: 2,
+//     }
+//     setTimeout(async () => {
+//       await dayModel.create(id, sleepData)
+//       await dayModel.update(id, sleepId, qualityData)
+//     }, 1000);
+//   }
+// fakeADay(adminId)
