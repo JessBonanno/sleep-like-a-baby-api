@@ -132,22 +132,22 @@ const getSleptHours = (bedtime, wakeTime) => {
   // using an arbitrary date to calculate hours slept
   let tonight = '2020-09-19T'
   let tomorrow = '2020-09-20T'
+  let startTime = bedtime
   let shorten = false;
-  let time1 = new Date(`${tonight}${bedtime}`)
+  let time1 = new Date(`${tonight}${startTime}`)
   let time2 = new Date(`${tomorrow}${wakeTime}`)
+  console.log(time1.getTime())
   if (time1.getTime() >= 1600488000000 && time1.getTime() <= 1600531200000) {
-    time1 = new Date(`${tomorrow}${bedtime}`)
-    shorten = true
+    time1 = new Date(`${tomorrow}${startTime}`)
   }
-  let sleepDifference = Math.abs(time1.getTime() - time2.getTime())
-  sleepDifference = sleepDifference / (1000 * 60 * 60);
-  if (shorten === true) {
-    return ((sleepDifference * 100) / 100)
-  } else {
-    return ((sleepDifference * 100) / 100)
-  }
+  const now = moment(time1)
+  const end = moment(time2)
+  const duration = moment.duration(now.diff(end))
+  const hours = duration.asHours()
+  console.log({now})
+  console.log({end})
+  return Math.abs(hours)
 }
-
 const getAverageQualityForOneDay = (wakeScore, dayScore, bedScore) => {
   return (((wakeScore + dayScore + bedScore) / 3)).toFixed(0)
 }

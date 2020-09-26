@@ -34,13 +34,13 @@ const shortMonths = [4, 6, 9, 11]
 let monthId
 let weekId
 const floodDays = async (id) => {
-let week = 27
+  let week = 27
   //flood my days
   month = 7
   day = 0
   let dayOfWeek = 0
-    monthId = faker.random.uuid()
-    weekId = faker.random.uuid()
+  monthId = faker.random.uuid()
+  weekId = faker.random.uuid()
   for (let i = 0; i < 61; i++) {
     const sleepId = faker.random.uuid()
     if (month === 2) {
@@ -107,12 +107,12 @@ let week = 27
       day_log_id: sleepId
     }
     if (dayOfWeek < 7) {
-    dayOfWeek++
-  } else {
-    dayOfWeek = 0;
-    week++
-    weekId = faker.random.uuid()
-  }
+      dayOfWeek++
+    } else {
+      dayOfWeek = 0;
+      week++
+      weekId = faker.random.uuid()
+    }
     // console.log({monthId})
     // console.log({month})
     // console.log({weekId})
@@ -165,22 +165,20 @@ const getSleptHours = (bedtime, wakeTime) => {
   // using an arbitrary date to calculate hours slept
   let tonight = '2020-09-19T'
   let tomorrow = '2020-09-20T'
+  let startTime = '22:01:51'
   let shorten = false;
-  let time1 = new Date(`${tonight}${'03:01:51'}`)
+  let time1 = new Date(`${tonight}${startTime}`)
   let time2 = new Date(`${tomorrow}${'09:15:11'}`)
   console.log(time1.getTime())
-  if (time1.getTime() >= 1600488000000 && time1.getTime() <= 1600531200000 ) {
-    console.log('true*****')
-    console.log(time1.getTime())
-      time1 = new Date(`${tomorrow}${'03:01:51'}`)
-    shorten = true
+  if (time1.getTime() >= 1600488000000 && time1.getTime() <= 1600531200000) {
+    time1 = new Date(`${tomorrow}${startTime}`)
   }
-  let sleepDifference = Math.abs(time1.getTime() - time2.getTime())
-  sleepDifference = sleepDifference / (1000 * 60 * 60);
-  if (shorten === true) {
-      return ((sleepDifference * 100) / 100)
-  } else {
-  return ((sleepDifference * 100) / 100)
-  }
+  const now = moment(time1)
+  const end = moment(time2)
+  const duration = moment.duration(now.diff(end))
+  const hours = duration.asHours()
+  console.log({now})
+  console.log({end})
+  return Math.abs(hours)
 }
 console.log(getSleptHours())
