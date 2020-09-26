@@ -41,6 +41,7 @@ router.get('/current-user/search', async (req, res, next) => {
 
 router.get('/days', async (req, res, next) => {
     const date = req.query.date
+  console.log(req.id)
   try {
       const days = await weekModel.getDaysForWeek(req.id, date)
     res.status(200).json(days)

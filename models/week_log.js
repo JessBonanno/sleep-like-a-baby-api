@@ -16,10 +16,11 @@ const getAllByUserId = async (userId) => {
  ******************************************************************************/
 
 const getUsersLogByDate = async (id, date) => {
-  console.log(`${moment(date).week() - 1}/2020`)
+  console.log({date})
+  console.log(`${moment(date).week()}/2020`)
   return db("week_log")
     .where('users_id', id)
-    .where('week_of_year', `${moment(date).week() - 1}/2020`)
+    .where('week_of_year', `${moment(date).week()}/2020`)
     .select('id',
       'week_of_year',
       'average_hours_slept',
