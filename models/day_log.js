@@ -134,7 +134,7 @@ const getSleptHours = (bedtime, wakeTime) => {
   return ((sleepDifference * 100) / 100).toFixed(2)
 }
 const getAverageQualityForOneDay = (wakeScore, dayScore, bedScore) => {
-  return (((wakeScore + dayScore + bedScore) / 3)).toFixed(2)
+  return (((wakeScore + dayScore + bedScore) / 3))
 }
 
 /******************************************************************************
