@@ -16,8 +16,6 @@ const getAllByUserId = async (userId) => {
  ******************************************************************************/
 
 const getUsersLogByDate = async (id, date) => {
-  console.log({date})
-  console.log(`${moment(date).week()}/2020`)
   return db("week_log")
     .where('users_id', id)
     .where('week_of_year', `${moment(date).week()}/2020`)
@@ -71,36 +69,17 @@ const create = async (userId) => {
  *                      Update a week log
  ******************************************************************************/
 
-const update = async (userId, dayData) => {
+const update = async (userId, dayData, date) => {
   const {sleptHours, avgQuality} = dayData
-  // get current week avg hours slept and quality and avg in the new numbers
-  const week_of_year = `${moment().week()}/${moment().year()}`
-  const [log] = await db('week_log').where({week_of_year}).where('users_id', userId)
-  const oldHours = log.average_hours_slept;
-  const oldQuality = log.average_quality;
-//  get day count of week for average
-  let dayCount = (moment().day())
-//  add todays entries plus old avgs divided by day count for new average
-  let newHourAvg
-  let newQuality
-  // if weekly averages are null update them with todays averages
-  if (oldHours === null) {
-    newHourAvg = sleptHours
-  } else {
-    newHourAvg = ((sleptHours + oldHours) / dayCount).toFixed(2)
-  }
-  if (oldQuality === null) {
-    newQuality = avgQuality
-  } else {
-    newQuality = ((avgQuality + oldQuality) / dayCount)
-  }
-  // finally update the week log
+//   // get current week
+  const week_of_year = `${moment(date).week()}/${moment().year()}`
+  //  update the week log
   await db('week_log')
     .where({week_of_year})
     .where('users_id', userId)
     .update({
-      average_hours_slept: newHourAvg,
-      average_quality: newQuality
+      average_hours_slept: sleptHours.toFixed(1),
+      average_quality: avgQuality.toFixed(0)
     }).select('id', 'week_of_year', 'average_hours_slept', 'average_quality')
   const [updatedLog] = await db('week_log').where({week_of_year}).where('users_id', userId)
   return updatedLog
@@ -112,7 +91,6 @@ const update = async (userId, dayData) => {
 
 const getDaysForWeek = async (id, date) => {
   const [week] = await getUsersLogByDate(id, date)
-  console.log(week.id)
   const days = await db('day_log as d')
     .where('week_log_id', week.id)
     .join('quality_log as q', 'q.day_log_id', 'd.id')
@@ -132,6 +110,19 @@ return days
 }
 
 /******************************************************************************
+ *                      Get all days averages for a week by date
+ ******************************************************************************/
+
+const getAveragesForWeek = async (userId, date) => {
+  const [week] = await getUsersLogByDate(userId, date)
+  const weekAverages = await db('day_log')
+    .where('week_log_id', week.id)
+    .avg('total_hours_slept as avg_hours_slept')
+    .avg('average_quality as avg_quality')
+return weekAverages
+}
+
+/******************************************************************************
  *                      Export methods
  ******************************************************************************/
 
@@ -143,4 +134,5 @@ module.exports = {
   getAllByUserId,
   getUsersLogByDate,
   getDaysForWeek,
+  getAveragesForWeek,
 }

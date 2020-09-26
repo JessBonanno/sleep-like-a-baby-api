@@ -17,8 +17,6 @@ const getAllByUserId = async (userId) => {
 
 const getUsersLogByDate = async (id, month, year) => {
 
-  console.log({month})
-  console.log({year})
   return db("month_log")
     .where('users_id', id)
     .where('month_of_year', `${month}/${year}` )
@@ -33,7 +31,6 @@ const getUsersLogByDate = async (id, month, year) => {
  ******************************************************************************/
 
 const checkIfMonthExists = async (userId, month_of_year) => {
-  // console.log({month_of_year})
   return db('month_log').where('users_id', userId).where('month_of_year', month_of_year);
 }
 
@@ -63,47 +60,28 @@ const create = async (userId) => {
         average_hours_slept: null,
         average_quality: null,
       },).returning('id')
-      console.log(monthLogId)
     } else {
     monthLogId = duplicate[0].id
   }
   return monthLogId;
 }
 
+
+
 /******************************************************************************
  *                      Update a month log
  ******************************************************************************/
 
-const update = async (userId, dayData) => {
+const update = async (userId, dayData, date) => {
   const {sleptHours, avgQuality} = dayData
   // get current month avg hours slept and quality and avg in the new numbers
-  const month_of_year = `${moment().month() + 1}/${moment().year()}`
-  const [log] = await db('month_log').where({month_of_year}).where('users_id', userId)
-  const oldHours = log.average_hours_slept;
-  const oldQuality = log.average_quality;
-//  get day count of month days for average
-  let dayCount = (moment().date())
-//  add todays entries plus old avgs divided by day count for new average
-    let newHourAvg
-  let newQuality
-  // if monthly averages are null update them with todays averages
-  if (oldHours === null) {
-    newHourAvg = sleptHours
-  } else {
-    newHourAvg = ((sleptHours + oldHours) / dayCount).toFixed(2)
-  }
-  if (oldQuality === null) {
-    newQuality = avgQuality
-  } else {
-    newQuality = ((avgQuality + oldQuality) / dayCount)
-  }
-  // finally update the month log
+  const month_of_year = `${moment(date).month() + 1}/${moment().year()}`
   await db('month_log')
     .where({month_of_year})
     .where('users_id', userId)
     .update({
-      average_hours_slept: newHourAvg,
-      average_quality: newQuality
+      average_hours_slept: sleptHours.toFixed(1),
+      average_quality: avgQuality.toFixed(0)
     }).select('id', 'month_of_year', 'average_hours_slept', 'average_quality')
   const [updatedLog] = await db('month_log').where({month_of_year}).where('users_id', userId)
   return updatedLog
@@ -115,7 +93,6 @@ const update = async (userId, dayData) => {
 
 const getDaysForMonth = async (id, month, year) => {
   const [result] = await getUsersLogByDate(id, month, year)
-  console.log(result)
   const days = await db('day_log as d')
     .where('month_log_id', result.id)
     .join('quality_log as q', 'q.day_log_id', 'd.id')
@@ -136,6 +113,19 @@ return days
 
 
 /******************************************************************************
+ *                      Get all days averages for a month by date
+ ******************************************************************************/
+
+const getAveragesForMonth = async (userId, month, year) => {
+  const [queryMonth] = await getUsersLogByDate(userId, month, year)
+  const weekAverages = await db('day_log')
+    .where('month_log_id', queryMonth.id)
+    .avg('total_hours_slept as avg_hours_slept')
+    .avg('average_quality as avg_quality')
+return weekAverages
+}
+
+/******************************************************************************
  *                      Export methods
  ******************************************************************************/
 
@@ -147,4 +137,5 @@ module.exports = {
   getAllByUserId,
   getUsersLogByDate,
   getDaysForMonth,
+  getAveragesForMonth,
 }

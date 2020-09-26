@@ -18,6 +18,10 @@ const calculateAverageQuality = (months) =>{
     }
 }
 
+const calculateBestSleep = () => {
+
+}
+
 
 module.exports = {
     calculateAverageQuality,
