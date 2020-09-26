@@ -189,10 +189,10 @@ const update = async (userId, id, sleepData) => {
       // set day log completed to true
       await db('day_log').update({completed: true})
 
-      averageQualityScore = getAverageQualityForOneDay(qualityLog.wake_score, qualityLog.day_score, qualityLog.bedtime_score)
+      averageQualityScore = getAverageQualityForOneDay(qualityLog.wake_score, qualityLog.day_score, qualityLog.bedtime_score).toFixed(0)
       // update the average score
       logUpdate = {
-        average_quality: averageQualityScore,
+        average_quality: averageQualityScore.toFixed(0),
       }
       await db('day_log').where({id}).update(logUpdate)
       // update the corresponding week log if there is one if its saturday
