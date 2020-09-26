@@ -166,13 +166,13 @@ const getSleptHours = (bedtime, wakeTime) => {
   let tonight = '2020-09-19T'
   let tomorrow = '2020-09-20T'
   let shorten = false;
-  let time1 = new Date(`${tonight}${'03:33:45'}`)
-  let time2 = new Date(`${tomorrow}${'09:14:45'}`)
+  let time1 = new Date(`${tonight}${'03:01:51'}`)
+  let time2 = new Date(`${tomorrow}${'09:15:11'}`)
   console.log(time1.getTime())
   if (time1.getTime() >= 1600488000000 && time1.getTime() <= 1600531200000 ) {
     console.log('true*****')
     console.log(time1.getTime())
-      time1 = new Date(`${tomorrow}${'03:33:45'}`)
+      time1 = new Date(`${tomorrow}${'03:01:51'}`)
     shorten = true
   }
   let sleepDifference = Math.abs(time1.getTime() - time2.getTime())

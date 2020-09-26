@@ -199,8 +199,11 @@ const update = async (userId, id, sleepData) => {
     // then get the newly formatted bedtime and wake_time
     const [sleepLog] = await getById(id)
     //then calculate hours slept with helper function and properly formatted times
+    console.log(sleepLog.bedtime)
+    console.log(sleepLog.wake_time)
     const sleptHours = getSleptHours(sleepLog.bedtime, sleepLog.wake_time).toFixed(1)
     // update with hours slept
+    console.log({sleptHours})
     logUpdate = {
       total_hours_slept: sleptHours,
     }
