@@ -95,7 +95,7 @@ const update = async (userId, dayData) => {
   if (oldQuality === null) {
     newQuality = avgQuality
   } else {
-    newQuality = ((avgQuality + oldQuality) / dayCount).toFixed(2)
+    newQuality = ((avgQuality + oldQuality) / dayCount)
   }
   // finally update the month log
   await db('month_log')
