@@ -157,6 +157,7 @@ const getAverageQualityForOneDay = (wakeScore, dayScore, bedScore) => {
  ******************************************************************************/
 
 const update = async (userId, id, sleepData) => {
+  console.log({sleepData})
   // - update bedtime from night before
   //   complete yesterdays log with bedtime if applicable
   const yesterday = moment().subtract(1, 'days')
