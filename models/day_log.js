@@ -42,15 +42,20 @@ const getAllByUserId = async (id) => {
  ******************************************************************************/
 
 const getById = async (id) => {
-  return db('day_log').where({id}).select(
-    'id',
-    'bedtime',
-    'date',
-    'wake_time',
-    'total_hours_slept',
-    'average_quality',
-    'completed'
-  )
+  return db('day_log as d').where('d.id', id)
+    .join('quality_log as q', 'q.day_log_id', 'd.id')
+    .select(
+      'd.id',
+      'd.date',
+      'd.bedtime',
+      'd.wake_time',
+      'd.total_hours_slept',
+      'd.average_quality',
+      'q.wake_score',
+      'q.day_score',
+      'q.bedtime_score',
+      'd.completed')
+
 }
 
 /******************************************************************************
@@ -89,51 +94,9 @@ const remove = async (id) => {
 /******************************************************************************
  *                      Create a new day log
  ******************************************************************************/
-// ******* old create
-// const create = async (userId, data) => {
-//   // // complete yesterdays log with bedtime if applicable
-//   // const yesterday = moment().subtract(1, 'days')
-//   // const yesterdayLog = await getByDate(userId, yesterday)
-//   // if (yesterdayLog.bedtime_score === 0) {
-//   //   //  update yesterdays bedtime
-//   //   await qualityModel.update(yesterdayLog.id, {
-//   //     bedtime_score: data.bedtime_score
-//   //   })
-//   // }
-//
-//    // check to see if there is an active sleep log
-//   const duplicate = await checkDuplicateDay(userId, data.date)
-//   let logId
-//   let logData
-//   if (duplicate.length === 0) {
-//     // creating a basic sleep log when user creates a new bedtime
-//     logData = {
-//       id: data.id || uuidv4(),
-//       users_id: data.users_id ||  userId,
-//       date: data.date || new Date(),
-//       bedtime: data.bedtime,
-//       wake_time: null,
-//       total_hours_slept: null,
-//       average_quality: null,
-//     }
-//     //  check if month and week logs already made and create them if not
-//     const monthLogId = await monthModel.create(userId);
-//     const weekLogId = await weekModel.create(userId);
-//     // create the day log
-//     [logId] = await db('day_log').insert({
-//       ...logData,
-//       week_log_id: weekLogId,
-//       month_log_id: monthLogId,
-//     }).returning('id')
-//     const qualityLogId = await qualityModel.create(logId);
-//   } else {
-//     logId = duplicate[0].id
-//   }
-//   return logId
-// }
 
 const create = async (userId, data) => {
-     // check to see if there is an active sleep log
+  // check to see if there is an active sleep log
   const duplicate = await checkDuplicateDay(userId, data.date)
   let logId
   let logData
@@ -142,7 +105,7 @@ const create = async (userId, data) => {
     // creating a basic sleep log
     logData = {
       id: data.id || uuidv4(),
-      users_id: data.users_id ||  userId,
+      users_id: data.users_id || userId,
       date: data.date || new Date(),
       bedtime: null,
       wake_time: null,
@@ -172,16 +135,16 @@ const getSleptHours = (bedtime, wakeTime) => {
   let shorten = false;
   let time1 = new Date(`${tonight}${bedtime}`)
   let time2 = new Date(`${tomorrow}${wakeTime}`)
-  if (time1.getTime() >= 1600488000000 && time1.getTime() <= 1600531200000 ) {
-      time1 = new Date(`${tomorrow}${bedtime}`)
+  if (time1.getTime() >= 1600488000000 && time1.getTime() <= 1600531200000) {
+    time1 = new Date(`${tomorrow}${bedtime}`)
     shorten = true
   }
   let sleepDifference = Math.abs(time1.getTime() - time2.getTime())
   sleepDifference = sleepDifference / (1000 * 60 * 60);
   if (shorten === true) {
-      return ((sleepDifference * 100) / 100)
+    return ((sleepDifference * 100) / 100)
   } else {
-  return ((sleepDifference * 100) / 100)
+    return ((sleepDifference * 100) / 100)
   }
 }
 
@@ -203,7 +166,7 @@ const update = async (userId, id, sleepData) => {
     await qualityModel.update(userId, yesterdayLog.id, {
       bedtime_score: sleepData.bedtime_score
     })
-  //  mark yesterdays log as completed
+    //  mark yesterdays log as completed
     await db('day_log').where('id', yesterdayLog.id).update({completed: true})
   }
   // first check if log is complete already (marked completed once all
@@ -222,9 +185,9 @@ const update = async (userId, id, sleepData) => {
     // first update the times
     await db('day_log').where({id}).update(logUpdate)
     // next update the quality scores
-      // get current quality values
+    // get current quality values
     let [currentQuality] = await qualityModel.getByDayLogId(id)
-      // if no value provided use old values
+    // if no value provided use old values
     let qualityUpdate = {
       wake_score: sleepData.wake_score || currentQuality.wake_score,
       day_score: sleepData.day_score || currentQuality.day_score,
