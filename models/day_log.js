@@ -105,7 +105,7 @@ const create = async (userId, bedtime) => {
       bedtime: bedtime,
       wake_time: null,
       total_hours_slept: null,
-      average_quality: 0,
+      average_quality: null,
     }
     //  check if month and week logs already made and create them if not
     const monthLogId = await monthModel.create(userId);
@@ -131,10 +131,10 @@ const getSleptHours = (bedtime, wakeTime) => {
   const time2 = new Date(`2020-09-19T${wakeTime}`)
   let sleepDifference = Math.abs(time1.getTime() - time2.getTime())
   sleepDifference = sleepDifference / (1000 * 60 * 60);
-  return (sleepDifference * 100) / 100
+  return ((sleepDifference * 100) / 100).toFixed(2)
 }
 const getAverageQualityForOneDay = (wakeScore, dayScore, bedScore) => {
-  return ((wakeScore + dayScore + bedScore) / 3)
+  return (((wakeScore + dayScore + bedScore) / 3)).toFixed(2)
 }
 
 /******************************************************************************

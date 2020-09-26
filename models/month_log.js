@@ -60,11 +60,13 @@ const create = async (userId) => {
         id: uuidv4(),
         users_id: userId,
         month_of_year: `${moment().month() + 1}/${moment().year()}`,
-        average_hours_slept: 0,
-        average_quality: 0,
+        average_hours_slept: null,
+        average_quality: null,
       },).returning('id')
       console.log(monthLogId)
-    }
+    } else {
+    monthLogId = duplicate[0].id
+  }
   return monthLogId;
 }
 
@@ -85,12 +87,12 @@ const update = async (userId, dayData) => {
     let newHourAvg
   let newQuality
   // if monthly averages are null update them with todays averages
-  if (oldHours === 0) {
+  if (oldHours === null) {
     newHourAvg = sleptHours
   } else {
     newHourAvg = ((sleptHours + oldHours) / dayCount).toFixed(2)
   }
-  if (oldQuality === 0) {
+  if (oldQuality === null) {
     newQuality = avgQuality
   } else {
     newQuality = ((avgQuality + oldQuality) / dayCount).toFixed(2)

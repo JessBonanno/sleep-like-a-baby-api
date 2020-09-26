@@ -44,7 +44,7 @@ exports.up = function (knex) {
       tbl.time("bedtime").notNullable();
       tbl.time("wake_time");
       tbl.double("total_hours_slept");
-      tbl.double("average_quality").notNullable();
+      tbl.double("average_quality")
       tbl.boolean('completed').defaultTo(false);
       tbl.uuid("users_id")
         .unsigned()

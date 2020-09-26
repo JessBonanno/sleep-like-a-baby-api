@@ -135,7 +135,7 @@ let week = 27
     }, 1000);
   }
 }
-const adminId = '2f627814-52be-4251-8199-fa68ccbc2f31'
+const adminId = 'cc785035-9ddc-4823-adbb-e0e6ad7932ca'
 const floodAdminsData = () => {
   floodDays(adminId)
   // floodWeeks(adminId)
@@ -143,7 +143,7 @@ const floodAdminsData = () => {
 }
 // floodUsers()
 // createAdmin()
-// floodAdminsData()
+floodAdminsData()
 
 // get week number by date
 // console.log(moment('1-25-1995').month() + 1 )
@@ -155,4 +155,5 @@ const floodAdminsData = () => {
 // const formattedBedTime = moment(time).format('hh:mm:A')
 //
 // console.log(formattedTime)
-console.log(moment().format('MM-DD-YYYY'))
+// console.log(moment().format('MM-DD-YYYY'))
+// console.log(moment('2020-09-25T00:00:00.000Z').day().format('d'))

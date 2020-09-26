@@ -58,10 +58,12 @@ const create = async (userId) => {
         id: uuidv4(),
         users_id: userId,
         week_of_year: `${moment().week()}/${moment().year()}`,
-        average_hours_slept: 0,
-        average_quality: 0,
+        average_hours_slept: null,
+        average_quality: null,
       },).returning('id')
-    }
+    } else {
+    weekLogId = duplicate[0].id
+  }
   return weekLogId;
 }
 
@@ -82,12 +84,12 @@ const update = async (userId, dayData) => {
   let newHourAvg
   let newQuality
   // if weekly averages are null update them with todays averages
-  if (oldHours === 0) {
+  if (oldHours === null) {
     newHourAvg = sleptHours
   } else {
     newHourAvg = ((sleptHours + oldHours) / dayCount).toFixed(2)
   }
-  if (oldQuality === 0) {
+  if (oldQuality === null) {
     newQuality = avgQuality
   } else {
     newQuality = ((avgQuality + oldQuality) / dayCount).toFixed(2)
