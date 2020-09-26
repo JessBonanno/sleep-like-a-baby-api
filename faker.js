@@ -161,26 +161,26 @@ const floodAdminsData = () => {
 // 00:00 => 1600488000000
 // 11:59 AM => 1600531199000
 // 12:00 => 1600531200000
-// const getSleptHours = (bedtime, wakeTime) => {
-//   // using an arbitrary date to calculate hours slept
-//   let tonight = '2020-09-19T'
-//   let tomorrow = '2020-09-20T'
-//   let shorten = false;
-//   let time1 = new Date(`${tonight}${bedtime}`)
-//   let time2 = new Date(`${tomorrow}${wakeTime}`)
-//   console.log(time1.getTime())
-//   if (time1.getTime() >= 1600488000000 && time1.getTime() <= 1600531200000 ) {
-//     console.log('true*****')
-//     console.log(time1.getTime())
-//       time1 = new Date(`${tomorrow}${bedtime}`)
-//     shorten = true
-//   }
-//   let sleepDifference = Math.abs(time1.getTime() - time2.getTime())
-//   sleepDifference = sleepDifference / (1000 * 60 * 60);
-//   if (shorten === true) {
-//       return ((sleepDifference * 100) / 100)
-//   } else {
-//   return ((sleepDifference * 100) / 100)
-//   }
-// }
-// console.log(getSleptHours())
+const getSleptHours = (bedtime, wakeTime) => {
+  // using an arbitrary date to calculate hours slept
+  let tonight = '2020-09-19T'
+  let tomorrow = '2020-09-20T'
+  let shorten = false;
+  let time1 = new Date(`${tonight}${'03:33:45'}`)
+  let time2 = new Date(`${tomorrow}${'09:14:45'}`)
+  console.log(time1.getTime())
+  if (time1.getTime() >= 1600488000000 && time1.getTime() <= 1600531200000 ) {
+    console.log('true*****')
+    console.log(time1.getTime())
+      time1 = new Date(`${tomorrow}${'03:33:45'}`)
+    shorten = true
+  }
+  let sleepDifference = Math.abs(time1.getTime() - time2.getTime())
+  sleepDifference = sleepDifference / (1000 * 60 * 60);
+  if (shorten === true) {
+      return ((sleepDifference * 100) / 100)
+  } else {
+  return ((sleepDifference * 100) / 100)
+  }
+}
+console.log(getSleptHours())
