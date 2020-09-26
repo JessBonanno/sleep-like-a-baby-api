@@ -198,7 +198,7 @@ const update = async (userId, id, sleepData) => {
   //   complete yesterdays log with bedtime if applicable
   const yesterday = moment().subtract(1, 'days')
   const yesterdayLog = await getByDate(userId, yesterday)
-  if (yesterdayLog.bedtime_score !== 0) {
+  if (yesterdayLog.bedtime_score === 0) {
     //  update yesterdays bedtime
     await qualityModel.update(userId, yesterdayLog.id, {
       bedtime_score: sleepData.bedtime_score
