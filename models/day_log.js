@@ -136,7 +136,6 @@ const getSleptHours = (bedtime, wakeTime) => {
   let shorten = false;
   let time1 = new Date(`${tonight}${startTime}`)
   let time2 = new Date(`${tomorrow}${wakeTime}`)
-  console.log(time1.getTime())
   if (time1.getTime() >= 1600488000000 && time1.getTime() <= 1600531200000) {
     time1 = new Date(`${tomorrow}${startTime}`)
   }
@@ -144,8 +143,6 @@ const getSleptHours = (bedtime, wakeTime) => {
   const end = moment(time2)
   const duration = moment.duration(now.diff(end))
   const hours = duration.asHours()
-  console.log({now})
-  console.log({end})
   return Math.abs(hours)
 }
 const getAverageQualityForOneDay = (wakeScore, dayScore, bedScore) => {
@@ -157,17 +154,18 @@ const getAverageQualityForOneDay = (wakeScore, dayScore, bedScore) => {
  ******************************************************************************/
 
 const update = async (userId, id, sleepData) => {
-  console.log({sleepData})
   // - update bedtime from night before
   //   complete yesterdays log with bedtime if applicable
-  const yesterday = moment().subtract(1, 'days').subtract(4, 'hours')
+  const yesterday = moment().subtract(1, 'days')
   const yesterdayLog = await getByDate(userId, yesterday)
-  if (yesterdayLog && yesterdayLog.bedtime_score === 0) {
+  console.log({yesterdayLog})
+  if (yesterdayLog.bedtime_score === 0) {
+  console.log({yesterday})
     //  update yesterdays bedtime
     await qualityModel.update(userId, yesterdayLog.id, {
       bedtime_score: sleepData.bedtime_score
     })
-    console.log(yesterdayLog)
+    console.log({yesterdayLog})
     //  mark yesterdays log as completed
     await db('day_log').where('id', yesterdayLog.id).update({completed: true})
   }
@@ -181,8 +179,8 @@ const update = async (userId, id, sleepData) => {
   // completed log)
   if (!isDone.completed) {
     let logUpdate = {
-      wake_time: sleepData.wake_time,
-      bedtime: sleepData.bedtime,
+      wake_time: sleepData.wake_time || undefined,
+      bedtime: sleepData.bedtime || undefined,
     }
     // first update the times
     await db('day_log').where({id}).update(logUpdate)
