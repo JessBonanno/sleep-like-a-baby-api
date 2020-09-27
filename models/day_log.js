@@ -140,8 +140,8 @@ const getSleptHours = (bedtime, wakeTime) => {
   if (time1.getTime() >= 1600488000000 && time1.getTime() <= 1600531200000) {
     time1 = new Date(`${tomorrow}${startTime}`)
   }
-  const now = moment(time1).subtract(4, 'hours')
-  const end = moment(time2).subtract(4, 'hours')
+  const now = moment(time1)
+  const end = moment(time2)
   const duration = moment.duration(now.diff(end))
   const hours = duration.asHours()
   console.log({now})
