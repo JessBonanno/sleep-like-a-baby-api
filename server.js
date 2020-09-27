@@ -20,7 +20,8 @@ const server = express();
 
 server.use(logger('dev'));
 server.use(cors({
-  origin: ['http://localhost:3000', 'https://sleep-like-a-baby.netlify.app/', 'https://sleep-like-a-baby-api.herokuapp.com/'],
+  // origin: ['http://localhost:3000', 'https://sleep-like-a-baby.netlify.app/', 'https://sleep-like-a-baby-api.herokuapp.com/'],
+  origin: '*',
   credentials: true,
 }));
 server.use(express.json());
