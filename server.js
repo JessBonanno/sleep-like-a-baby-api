@@ -20,8 +20,27 @@ const server = express();
 
 server.use(logger('dev'));
 server.use(cors({
-  origin: ['http://localhost:3000', 'https://sleep-like-a-baby.netlify.app/', 'https://sleep-like-a-baby-api.herokuapp.com/'],
+  // origin: ['http://localhost:3000', 'https://sleep-like-a-baby.netlify.app/', 'https://sleep-like-a-baby-api.herokuapp.com/'],
   credentials: true,
+  origin: function (origin, cb) {
+
+            // setup a white list
+            let wl = ['http://localhost:3000', 'https://sleep-like-a-baby.netlify.app/', 'https://sleep-like-a-baby-api.herokuapp.com/'];
+
+            if (wl.indexOf(origin) != -1) {
+
+                cb(null, true);
+
+            } else {
+
+                cb(new Error('invalid origin: ' + origin), false);
+
+            }
+
+        },
+
+        optionsSuccessStatus: 200
+
 }));
 server.use(express.json());
 server.use(express.urlencoded({extended: false}));
