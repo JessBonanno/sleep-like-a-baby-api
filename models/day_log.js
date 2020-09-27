@@ -158,16 +158,16 @@ const update = async (userId, id, sleepData) => {
   //   complete yesterdays log with bedtime if applicable
   const yesterday = moment().subtract(1, 'days')
   const yesterdayLog = await getByDate(userId, yesterday)
-  console.log({yesterdayLog})
   if (yesterdayLog.bedtime_score === 0) {
-  console.log({yesterday})
     //  update yesterdays bedtime
-    await qualityModel.update(userId, yesterdayLog.id, {
-      bedtime_score: sleepData.bedtime_score
+    const yesterdayUpdate = await qualityModel.update(userId, yesterdayLog.id, {
+      bedtime_score: sleepData.bedtime_score || 0
     })
-    console.log({yesterdayLog})
-    //  mark yesterdays log as completed
-    await db('day_log').where('id', yesterdayLog.id).update({completed: true})
+    //  if yesterdays Log is completed...
+    if (yesterdayUpdate.wake_score !== 0 && yesterdayUpdate.day_score !== 0 && yesterdayUpdate.bedtime_score !== 0) {
+      //  mark yesterdays log as completed
+      await db('day_log').where('id', yesterdayLog.id).update({completed: true})
+    }
   }
   // first check if log is complete already (marked completed once all
   // scores are in)
@@ -198,11 +198,8 @@ const update = async (userId, id, sleepData) => {
     // then get the newly formatted bedtime and wake_time
     const [sleepLog] = await getById(id)
     //then calculate hours slept with helper function and properly formatted times
-    console.log(sleepLog.bedtime)
-    console.log(sleepLog.wake_time)
     const sleptHours = getSleptHours(sleepLog.bedtime, sleepLog.wake_time).toFixed(1)
     // update with hours slept
-    console.log({sleptHours})
     logUpdate = {
       total_hours_slept: sleptHours,
     }

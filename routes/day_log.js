@@ -24,7 +24,6 @@ router.post('/current-user', async (req, res, next) => {
   try {
     const dayLogId = await dayModel.create(req.id, req.body)
     const [log] = await dayModel.getById(dayLogId)
-    console.log({log})
     res.status(201).json(log)
   } catch (err) {
     console.log(err.stack);

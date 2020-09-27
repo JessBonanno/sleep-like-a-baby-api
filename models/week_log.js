@@ -69,19 +69,16 @@ const create = async (userId) => {
  *                      Update a week log
  ******************************************************************************/
 
-const update = async (userId, dayData, date) => {
+const update = async (dayData, id) => {
   const {sleptHours, avgQuality} = dayData
-//   // get current week
-  const week_of_year = `${moment(date).week()}/${moment().year()}`
   //  update the week log
   await db('week_log')
-    .where({week_of_year})
-    .where('users_id', userId)
+    .where({id})
     .update({
       average_hours_slept: sleptHours.toFixed(1),
-      average_quality: avgQuality.toFixed(0)
+      average_quality: avgQuality
     }).select('id', 'week_of_year', 'average_hours_slept', 'average_quality')
-  const [updatedLog] = await db('week_log').where({week_of_year}).where('users_id', userId)
+  const [updatedLog] = await db('week_log').where({id})
   return updatedLog
 }
 
@@ -113,8 +110,8 @@ return days
  *                      Get all days averages for a week by date
  ******************************************************************************/
 
-const getAveragesForWeek = async (userId, date) => {
-  const [week] = await getUsersLogByDate(userId, date)
+const getAveragesForWeek = async (id) => {
+  const [week] = await db('week_log').where({id})
   const weekAverages = await db('day_log')
     .where('week_log_id', week.id)
     .avg('total_hours_slept as avg_hours_slept')

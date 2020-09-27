@@ -72,21 +72,18 @@ const create = async (userId) => {
  *                      Update a month log
  ******************************************************************************/
 
-const update = async (userId, dayData, date) => {
+const update = async (dayData, id) => {
   const {sleptHours, avgQuality} = dayData
-  // get current month avg hours slept and quality and avg in the new numbers
-  const month_of_year = `${moment(date).month() + 1}/${moment().year()}`
+  //  update the month log
   await db('month_log')
-    .where({month_of_year})
-    .where('users_id', userId)
+    .where({id})
     .update({
       average_hours_slept: sleptHours.toFixed(1),
-      average_quality: avgQuality.toFixed(0)
+      average_quality: avgQuality
     }).select('id', 'month_of_year', 'average_hours_slept', 'average_quality')
-  const [updatedLog] = await db('month_log').where({month_of_year}).where('users_id', userId)
+  const [updatedLog] = await db('month_log').where({id})
   return updatedLog
 }
-
 /******************************************************************************
  *                      Get all days of a month by date
  ******************************************************************************/
@@ -116,14 +113,16 @@ return days
  *                      Get all days averages for a month by date
  ******************************************************************************/
 
-const getAveragesForMonth = async (userId, month, year) => {
-  const [queryMonth] = await getUsersLogByDate(userId, month, year)
-  const weekAverages = await db('day_log')
-    .where('month_log_id', queryMonth.id)
+const getAveragesForMonth = async (id) => {
+   const [month] = await db('month_log').where({id})
+  const monthAverages = await db('day_log')
+    .where('month_log_id', month.id)
     .avg('total_hours_slept as avg_hours_slept')
     .avg('average_quality as avg_quality')
-return weekAverages
+return monthAverages
 }
+
+
 
 /******************************************************************************
  *                      Export methods

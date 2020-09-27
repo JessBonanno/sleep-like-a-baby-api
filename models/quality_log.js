@@ -3,6 +3,8 @@ const {v4: uuidv4} = require('uuid');
 const moment = require('moment');
 const weekModel = require('./week_log')
 const monthModel = require('./month_log')
+const dayModel = require(('./day_log'));
+
 
 /******************************************************************************
  *                      Create a new quality log
@@ -43,32 +45,35 @@ const update = async (userId, dayLogId, qualityData) => {
     }
     await db('day_log').where('id', dayLogId).update(logUpdate)
     // update the corresponding week log if there is one if its saturday
-    const week_of_year = `${moment(log.date).week()}/${moment().year()}`
-    let weekExists = await weekModel.checkIfWeekExists(userId, week_of_year)
-    // get hours and averages for all days in that week
-    if (weekExists.length > 0) {
-      const [weekAverages] = await weekModel.getAveragesForWeek(userId, log.date)
+    //get the day_log id to find the week
+    const [dayLog] = await db('day_log').where('id', log.day_log_id)
+    // find week
+    const weekLog = await db('week_log').where('id', dayLog.week_log_id)
+    // if the week exists
+    // // get hours and averages for all days in that week
+    if (weekLog.length > 0) {
+      const [weekAverages] = await weekModel.getAveragesForWeek(weekLog[0].id)
       let dayData = {
         sleptHours: weekAverages.avg_hours_slept,
         avgQuality: weekAverages.avg_quality
       }
-      const updatedWeek = weekModel.update(userId, dayData, log.date)
+      const updatedWeek = await weekModel.update(dayData, weekLog[0].id)
     }
     // update the corresponding month log if there is one if its the last
-    // day of the month
-    const month_of_year = `${moment(log.date).month() + 1}/${moment().year()}`
-    let monthExists = await monthModel.checkIfMonthExists(userId, month_of_year)
-    if (monthExists.length > 0) {
-      const month = (moment(log.date).month() + 1)
-      const formattedDate = moment(log.date).format('MM-DD-YYYY')
-      const year = formattedDate.substring(formattedDate.length - 4)
-            const [monthAverages] = await monthModel.getAveragesForMonth(userId, month, year)
-        let dayData = {
+
+    // find month
+    const monthLog = await db('month_log').where('id', dayLog.month_log_id)
+    // if the month exists
+    // get hours and averages for all days in that week
+    if (monthLog.length > 0) {
+      const [monthAverages] = await monthModel.getAveragesForMonth(monthLog[0].id)
+      let dayData = {
         sleptHours: monthAverages.avg_hours_slept,
         avgQuality: monthAverages.avg_quality
-        }
-        updatedMonth = monthModel.update(userId, dayData, log.date)
+      }
+      const updatedMonth = await monthModel.update(dayData, monthLog[0].id)
     }
+
   }
 
   return log
