@@ -136,7 +136,7 @@ const floodDays = async (id) => {
     }, 1000);
   }
 }
-const adminId = 'cc785035-9ddc-4823-adbb-e0e6ad7932ca'
+const adminId = '036f18ad-a2c2-496b-8b64-ff4df3dd6aa4'
 const floodAdminsData = () => {
   floodDays(adminId)
 }
@@ -161,24 +161,24 @@ const floodAdminsData = () => {
 // 00:00 => 1600488000000
 // 11:59 AM => 1600531199000
 // 12:00 => 1600531200000
-const getSleptHours = (bedtime, wakeTime) => {
-  // using an arbitrary date to calculate hours slept
-  let tonight = '2020-09-19T'
-  let tomorrow = '2020-09-20T'
-  let startTime = '22:01:51'
-  let shorten = false;
-  let time1 = new Date(`${tonight}${startTime}`)
-  let time2 = new Date(`${tomorrow}${'09:15:11'}`)
-  console.log(time1.getTime())
-  if (time1.getTime() >= 1600488000000 && time1.getTime() <= 1600531200000) {
-    time1 = new Date(`${tomorrow}${startTime}`)
-  }
-  const now = moment(time1)
-  const end = moment(time2)
-  const duration = moment.duration(now.diff(end))
-  const hours = duration.asHours()
-  console.log({now})
-  console.log({end})
-  return Math.abs(hours)
-}
-console.log(getSleptHours())
+// const getSleptHours = (bedtime, wakeTime) => {
+//   // using an arbitrary date to calculate hours slept
+//   let tonight = '2020-09-19T'
+//   let tomorrow = '2020-09-20T'
+//   let startTime = '22:01:51'
+//   let shorten = false;
+//   let time1 = new Date(`${tonight}${startTime}`)
+//   let time2 = new Date(`${tomorrow}${'09:15:11'}`)
+//   console.log(time1.getTime())
+//   if (time1.getTime() >= 1600488000000 && time1.getTime() <= 1600531200000) {
+//     time1 = new Date(`${tomorrow}${startTime}`)
+//   }
+//   const now = moment('2020-09-19T22:01:51+00:00')
+//   const end = moment('2020-09-20T09:15:11+00:00')
+//   const duration = moment.duration(now.diff(end))
+//   const hours = duration.asHours()
+//   console.log({now})
+//   console.log({end})
+//   return Math.abs(hours)
+// }
+// console.log(getSleptHours())

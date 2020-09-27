@@ -140,8 +140,8 @@ const getSleptHours = (bedtime, wakeTime) => {
   if (time1.getTime() >= 1600488000000 && time1.getTime() <= 1600531200000) {
     time1 = new Date(`${tomorrow}${startTime}`)
   }
-  const now = moment(time1)
-  const end = moment(time2)
+  const now = moment(time1).subtract(4, 'hours')
+  const end = moment(time2).subtract(4, 'hours')
   const duration = moment.duration(now.diff(end))
   const hours = duration.asHours()
   console.log({now})
@@ -160,13 +160,14 @@ const update = async (userId, id, sleepData) => {
   console.log({sleepData})
   // - update bedtime from night before
   //   complete yesterdays log with bedtime if applicable
-  const yesterday = moment().subtract(1, 'days')
+  const yesterday = moment().subtract(1, 'days').subtract(4, 'hours')
   const yesterdayLog = await getByDate(userId, yesterday)
-  if (yesterdayLog.bedtime_score === 0) {
+  if (yesterdayLog && yesterdayLog.bedtime_score === 0) {
     //  update yesterdays bedtime
     await qualityModel.update(userId, yesterdayLog.id, {
       bedtime_score: sleepData.bedtime_score
     })
+    console.log(yesterdayLog)
     //  mark yesterdays log as completed
     await db('day_log').where('id', yesterdayLog.id).update({completed: true})
   }

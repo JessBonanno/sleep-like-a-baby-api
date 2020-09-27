@@ -41,7 +41,7 @@ exports.up = function (knex) {
     .createTable("day_log", tbl => {
       tbl.uuid('id').notNullable().unique().primary();
       tbl.date("date").notNullable();
-      tbl.time("bedtime").notNullable();
+      tbl.time("bedtime");
       tbl.time("wake_time");
       tbl.double("total_hours_slept");
       tbl.double("average_quality")
