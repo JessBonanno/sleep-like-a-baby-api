@@ -145,36 +145,18 @@ const getSleptHours = (bedtime, wakeTime) => {
   const hours = duration.asHours()
   return Math.abs(hours)
 }
-const getAverageQualityForOneDay = (wakeScore, dayScore, bedScore) => {
-  return (((wakeScore + dayScore + bedScore) / 3)).toFixed(0)
-}
 
 /******************************************************************************
  *            Update a day log (bubbles down to week and month logs)
  ******************************************************************************/
 
+
+
 const update = async (userId, id, sleepData) => {
-  // - update bedtime from night before
-  //   complete yesterdays log with bedtime if applicable
-  const yesterday = moment().subtract(1, 'days')
-  const yesterdayLog = await getByDate(userId, yesterday)
-  if (yesterdayLog.bedtime_score === 0) {
-    //  update yesterdays bedtime
-    const yesterdayUpdate = await qualityModel.update(userId, yesterdayLog.id, {
-      bedtime_score: sleepData.bedtime_score || 0
-    })
-    //  if yesterdays Log is completed...
-    if (yesterdayUpdate.wake_score !== 0 && yesterdayUpdate.day_score !== 0 && yesterdayUpdate.bedtime_score !== 0) {
-      //  mark yesterdays log as completed
-      await db('day_log').where('id', yesterdayLog.id).update({completed: true})
-    }
-  }
+
   // first check if log is complete already (marked completed once all
   // scores are in)
   let [isDone] = await db('day_log').where({id}).select('completed')
-  // TODO Notify user if trying to update a completed log
-  let updatedWeek
-  let updatedMonth
   // if its not completed yet update the log (else just return the already
   // completed log)
   if (!isDone.completed) {
@@ -183,7 +165,7 @@ const update = async (userId, id, sleepData) => {
       bedtime: sleepData.bedtime || undefined,
     }
     // first update the times
-    await db('day_log').where({id}).update(logUpdate)
+    await db('day_log').where({id}).update(logUpdate).returning('*')
     // next update the quality scores
     // get current quality values
     let [currentQuality] = await qualityModel.getByDayLogId(id)
@@ -191,10 +173,11 @@ const update = async (userId, id, sleepData) => {
     let qualityUpdate = {
       wake_score: sleepData.wake_score || currentQuality.wake_score,
       day_score: sleepData.day_score || currentQuality.day_score,
+      bedtime_score: sleepData.bedtime_score || currentQuality.bedtime_score,
     }
     // update the scores
     await qualityModel.update(userId, id, qualityUpdate)
-    const [qualityLog] = await qualityModel.getByDayLogId(id)
+    await qualityModel.getByDayLogId(id)
     // then get the newly formatted bedtime and wake_time
     const [sleepLog] = await getById(id)
     //then calculate hours slept with helper function and properly formatted times
@@ -205,8 +188,8 @@ const update = async (userId, id, sleepData) => {
     }
     await db('day_log').where({id}).update(logUpdate)
   }
-  let completedLog
-  [completeLog] = await db('day_log as d')
+
+  const [completeLog] = await db('day_log as d')
     .where('d.id', id)
     .join('quality_log as q', 'q.day_log_id', 'd.id')
     .join('week_log as w', 'w.users_id', 'd.users_id')

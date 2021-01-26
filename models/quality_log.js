@@ -31,9 +31,8 @@ const getAverageQualityForOneDay = (wakeScore, dayScore, bedScore) => {
 }
 
 const update = async (userId, dayLogId, qualityData) => {
-  const updated = await db('quality_log').where('day_log_id', dayLogId).update(qualityData)
+  await db('quality_log').where('day_log_id', dayLogId).update(qualityData)
   const [log] = await db('quality_log').where('day_log_id', dayLogId)
-
   // if all scores are inputted calculate the average quality score and
   // update week and month averages if logs exist
   let averageQualityScore
@@ -57,7 +56,7 @@ const update = async (userId, dayLogId, qualityData) => {
         sleptHours: weekAverages.avg_hours_slept,
         avgQuality: weekAverages.avg_quality
       }
-      const updatedWeek = await weekModel.update(dayData, weekLog[0].id)
+     await weekModel.update(dayData, weekLog[0].id)
     }
     // update the corresponding month log if there is one if its the last
 
@@ -71,7 +70,7 @@ const update = async (userId, dayLogId, qualityData) => {
         sleptHours: monthAverages.avg_hours_slept,
         avgQuality: monthAverages.avg_quality
       }
-      const updatedMonth = await monthModel.update(dayData, monthLog[0].id)
+      await monthModel.update(dayData, monthLog[0].id)
     }
 
   }

@@ -74,11 +74,15 @@ const create = async (userId) => {
 
 const update = async (dayData, id) => {
   const {sleptHours, avgQuality} = dayData
+    let hours
+  if (sleptHours === null ) {
+    hours = 0;
+  }
   //  update the month log
   await db('month_log')
     .where({id})
     .update({
-      average_hours_slept: sleptHours.toFixed(1),
+      average_hours_slept: hours.toFixed(1),
       average_quality: avgQuality
     }).select('id', 'month_of_year', 'average_hours_slept', 'average_quality')
   const [updatedLog] = await db('month_log').where({id})

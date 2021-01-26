@@ -41,10 +41,13 @@ router.get('/current-user/search', async (req, res, next) => {
 
 router.get('/days', async (req, res, next) => {
     const date = req.query.date
-  console.log(req.id)
   try {
       const days = await weekModel.getDaysForWeek(req.id, date)
-    res.status(200).json(days)
+    if (days) {
+      res.status(200).json(days)
+  } else {
+      res.status(404).json({message: 'No data found for that week'})
+    }
   } catch (err) {
     console.log(err.stack);
     next(err);

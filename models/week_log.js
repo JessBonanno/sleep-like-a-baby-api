@@ -16,9 +16,12 @@ const getAllByUserId = async (userId) => {
  ******************************************************************************/
 
 const getUsersLogByDate = async (id, date) => {
+  // must supply a format to moment to avoid errors and warnings about
+  // deprecation
+  const week = `${moment(date, 'MM-DD-YYY').week()}/${date.substr(date.length - 4)}`
   return db("week_log")
     .where('users_id', id)
-    .where('week_of_year', `${moment(date).week()}/2020`)
+    .where('week_of_year', `${week}`)
     .select('id',
       'week_of_year',
       'average_hours_slept',
@@ -71,11 +74,15 @@ const create = async (userId) => {
 
 const update = async (dayData, id) => {
   const {sleptHours, avgQuality} = dayData
+  let hours
+  if (sleptHours === null ) {
+    hours = 0;
+  }
   //  update the week log
   await db('week_log')
     .where({id})
     .update({
-      average_hours_slept: sleptHours.toFixed(1),
+      average_hours_slept: hours.toFixed(1),
       average_quality: avgQuality
     }).select('id', 'week_of_year', 'average_hours_slept', 'average_quality')
   const [updatedLog] = await db('week_log').where({id})
@@ -88,6 +95,7 @@ const update = async (dayData, id) => {
 
 const getDaysForWeek = async (id, date) => {
   const [week] = await getUsersLogByDate(id, date)
+  if (week) {
   const days = await db('day_log as d')
     .where('week_log_id', week.id)
     .join('quality_log as q', 'q.day_log_id', 'd.id')
@@ -104,6 +112,7 @@ const getDaysForWeek = async (id, date) => {
       'd.completed')
     .orderBy('d.date')
 return days
+  }
 }
 
 /******************************************************************************
